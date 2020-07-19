@@ -719,7 +719,6 @@ MonoBehaviour:
   flightControl: 1
   allowDoubleJump: 1
   groundCheck: {fileID: 1735366628}
-  raycastTolerance: 0.5
   animator: {fileID: 687937232}
 --- !u!50 &687937229
 Rigidbody2D:
@@ -1636,6 +1635,16 @@ PrefabInstance:
         type: 3}
       propertyPath: groundMovementSpeed
       value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 5959841392543531147, guid: ac326f2d826c10244922ddec6e983504,
+        type: 3}
+      propertyPath: flightControl
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5959841392543531147, guid: ac326f2d826c10244922ddec6e983504,
+        type: 3}
+      propertyPath: allowDoubleJump
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5959841392543531149, guid: ac326f2d826c10244922ddec6e983504,
         type: 3}

@@ -13,7 +13,6 @@ public class PlayerController : MonoBehaviour
     public bool flightControl = false;
     public bool allowDoubleJump = false;
     public Transform groundCheck = null;
-    public float raycastTolerance = 0.5f;
     public Animator animator;
 
     private Stopwatch watch;
@@ -62,7 +61,7 @@ public class PlayerController : MonoBehaviour
         filter.SetLayerMask(1);
         filter.useLayerMask = true;
         RaycastHit2D[] results = new RaycastHit2D[10];
-        int res = Physics2D.Raycast(new Vector2(groundCheck.position.x, groundCheck.position.y), -Vector2.up, filter, results, raycastTolerance);
+        int res = Physics2D.Raycast(new Vector2(groundCheck.position.x, groundCheck.position.y), -Vector2.up, filter, results, 0.5f);
         if (res > 0) onGround();
         else onAir();
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
-public class KeyboardController2D : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     public double movementSpeed = 500;
     public double rotationSpeed = 200;

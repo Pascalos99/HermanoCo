@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using UnityEditor;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -13,7 +14,8 @@ public class PlayerController : MonoBehaviour
     public bool flightControl = false;
     public bool allowDoubleJump = false;
     public Transform groundCheck = null;
-    public Animator animator;
+    public float groundCheckRadius = 0.75f;
+    public CharacterAnimator animator;
 
     private Stopwatch watch;
     private Rigidbody2D rigid;
@@ -27,7 +29,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public bool isFlying { get { return !isGrounded; } }
+    public bool isFlying { get { return !isGrounded; } set { isGrounded = !value; } }
 
     private bool isGrounded = true;
 
@@ -61,17 +63,17 @@ public class PlayerController : MonoBehaviour
         filter.SetLayerMask(1);
         filter.useLayerMask = true;
         RaycastHit2D[] results = new RaycastHit2D[10];
-        int res = Physics2D.Raycast(new Vector2(groundCheck.position.x, groundCheck.position.y), -Vector2.up, filter, results, 0.5f);
+        int res = Physics2D.Raycast(new Vector2(groundCheck.position.x, groundCheck.position.y), -Vector2.up, filter, results, groundCheckRadius);
         if (res > 0) onGround();
         else onAir();
 
         float speedX = rigid.velocity.x;
         float speedY = rigid.velocity.y;
-        animator.SetFloat("HorizontalSpeed", Math.Abs(speedX));
-        animator.SetFloat("VerticalSpeed", speedY);
-        animator.SetBool("isRunning", isRunning && !isFlying);
-        animator.SetBool("isFlying", isFlying);
-        animator.SetBool("jumpedTwice", jumpedTwice);
+        animator.setHorizontalSpeed(Math.Abs(speedX));
+        animator.setVerticalSpeed(speedY);
+        animator.setRunning(isRunning && !isFlying);
+        animator.setFlying(isFlying);
+        animator.setDoubleJump(jumpedTwice);
 
         watch.Reset();
         watch.Start();

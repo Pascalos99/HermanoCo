@@ -1,18 +1,23 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public double movementSpeed = 500;
+    public double groundMovementSpeed = 500;
+    public double airMovementSpeed = 300;
     public double rotationSpeed = 200;
     public float jumpStrength = 400;
     public bool flightControl = false;
     public bool allowDoubleJump = false;
-    public string floorTag = "Ground";
+    public Transform groundCheck = null;
+    public float raycastTolerance = 0.5f;
+    public Animator animator;
 
     private Stopwatch watch;
+    private Rigidbody2D rigid;
 
     public bool allowMovement
     {
@@ -32,6 +37,8 @@ public class PlayerController : MonoBehaviour
     {
         isGrounded = false;
         watch = new Stopwatch();
+        if (groundCheck == null) groundCheck = gameObject.transform;
+        rigid = gameObject.GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
@@ -39,33 +46,59 @@ public class PlayerController : MonoBehaviour
     {
         watch.Stop();
         double dt = watch.Elapsed.TotalSeconds;
+        double movementSpeed = groundMovementSpeed;
+        if (isFlying) movementSpeed = airMovementSpeed;
+        bool isRunning = false;
         if (GlobalControls.GetKeyDown(GlobalControls.Jump)) Jump();
         if (GlobalControls.GetKeyDown(GlobalControls.Up)) Jump();
-        if (GlobalControls.GetKey(GlobalControls.Left) && allowMovement) AddForce(new Vector2((float)(-movementSpeed * dt), 0));
-        if (GlobalControls.GetKey(GlobalControls.Right) && allowMovement) AddForce(new Vector2((float)(movementSpeed * dt), 0));
+        if (GlobalControls.GetKey(GlobalControls.Left) && allowMovement) { AddForce(new Vector2((float)(-movementSpeed * dt), 0)); isRunning = true; }
+        if (GlobalControls.GetKey(GlobalControls.Right) && allowMovement) { AddForce(new Vector2((float)(movementSpeed * dt), 0)); isRunning = true; }
         if (GlobalControls.GetKey(GlobalControls.RotateLeft) && allowMovement) AddRotation((float)(rotationSpeed * dt));
         if (GlobalControls.GetKey(GlobalControls.RotateRight) && allowMovement) AddRotation((float)(-rotationSpeed * dt));
+
+        PlayerRotationCheck();
+
+        ContactFilter2D filter = new ContactFilter2D();
+        filter.SetLayerMask(1);
+        filter.useLayerMask = true;
+        RaycastHit2D[] results = new RaycastHit2D[10];
+        int res = Physics2D.Raycast(new Vector2(groundCheck.position.x, groundCheck.position.y), -Vector2.up, filter, results, raycastTolerance);
+        if (res > 0) onGround();
+        else onAir();
+
+        float speedX = rigid.velocity.x;
+        float speedY = rigid.velocity.y;
+        animator.SetFloat("HorizontalSpeed", Math.Abs(speedX));
+        animator.SetFloat("VerticalSpeed", speedY);
+        animator.SetBool("isRunning", isRunning && !isFlying);
+        animator.SetBool("isFlying", isFlying);
+        animator.SetBool("jumpedTwice", jumpedTwice);
+
         watch.Reset();
         watch.Start();
     }
-
-    void OnCollisionEnter2D(Collision2D theCollision)
+    
+    private void PlayerRotationCheck()
     {
-        if (theCollision.gameObject.tag == floorTag)
-        {
-            isGrounded = true;
-            jumpedTwice = false;
-            // touched the ground now
-        }
+        Quaternion q = transform.rotation;
+        if (rigid.velocity.x > 0.01) q.eulerAngles = new Vector3(q.eulerAngles.x, 0, q.eulerAngles.z);
+        if (rigid.velocity.x < -0.01) q.eulerAngles = new Vector3(q.eulerAngles.x, 180, q.eulerAngles.z);
+        transform.rotation = q;
     }
 
-    void OnCollisionExit2D(Collision2D theCollision)
+    private void onGround()
     {
-        if (theCollision.gameObject.tag == floorTag)
-        {
-            isGrounded = false;
-            // lift off from the ground!
-        }
+        isGrounded = true;
+        jumpedTwice = false;
+        Quaternion q = transform.rotation;
+        q.eulerAngles = new Vector3(q.eulerAngles.x, q.eulerAngles.y, 0);
+        transform.rotation = q;
+        rigid.constraints = RigidbodyConstraints2D.FreezeRotation;
+    }
+    private void onAir()
+    {
+        isGrounded = false;
+        rigid.constraints = RigidbodyConstraints2D.None;
     }
 
     private bool jumpedTwice = false;
@@ -80,10 +113,10 @@ public class PlayerController : MonoBehaviour
 
     private void AddForce(Vector2 force)
     {
-        gameObject.GetComponent<Rigidbody2D>().AddForce(force);
+        rigid.AddForce(force);
     }
     private void AddRotation(float torque)
     {
-        gameObject.GetComponent<Rigidbody2D>().AddTorque(torque);
+        rigid.AddTorque(torque);
     }
 }

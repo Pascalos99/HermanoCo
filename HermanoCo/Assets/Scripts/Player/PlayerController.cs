@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
     public bool allowDoubleJump = false;
     public Transform groundCheck = null;
     public float groundCheckRadius = 0.75f;
-    public CharacterAnimator animator;
+    public Animator animator;
 
     private Stopwatch watch;
     private Rigidbody2D rigid;
@@ -69,11 +69,11 @@ public class PlayerController : MonoBehaviour
 
         float speedX = rigid.velocity.x;
         float speedY = rigid.velocity.y;
-        animator.setHorizontalSpeed(Math.Abs(speedX));
-        animator.setVerticalSpeed(speedY);
-        animator.setRunning(isRunning && !isFlying);
-        animator.setFlying(isFlying);
-        animator.setDoubleJump(jumpedTwice);
+        animator.SetFloat("HorizontalSpeed", Math.Abs(speedX));
+        animator.SetFloat("VerticalSpeed", speedY);
+        animator.SetBool("isRunning", isRunning && !isFlying);
+        animator.SetBool("isFlying", isFlying);
+        animator.SetBool("jumpedTwice", jumpedTwice);
 
         watch.Reset();
         watch.Start();

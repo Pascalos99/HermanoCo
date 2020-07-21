@@ -7,10 +7,8 @@ using UnityEngine;
 public class FollowTarget2D : MonoBehaviour
 {
     public Transform target;
-    public double followSpeed;
-    public double minimumDistance;
-    private double follow_speed;
-    private double minimum_distance;
+    public double followSpeed = 5;
+    public double minimumDistance = 0;
 
     private Vector2 targetPosition;
     private Vector2 currentPosition;
@@ -20,10 +18,8 @@ public class FollowTarget2D : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        follow_speed = followSpeed;
-        minimum_distance = minimumDistance;
-        if (followSpeed < 0) follow_speed *= -1;
-        if (minimumDistance < 0) minimum_distance *= -1;
+        if (followSpeed < 0) followSpeed *= -1;
+        if (minimumDistance < 0) minimumDistance *= -1;
         watch.Start();
     }
 
@@ -34,8 +30,9 @@ public class FollowTarget2D : MonoBehaviour
         targetPosition = new Vector2(target.position.x, target.position.y);
         currentPosition = new Vector2(transform.position.x, transform.position.y);
         Vector2 delta = targetPosition - currentPosition;
-        float factor = (float)(follow_speed * watch.Elapsed.TotalSeconds);
-        if (delta.magnitude < minimum_distance || delta.magnitude < factor) return;
+        float factor = (float)(followSpeed * watch.Elapsed.TotalSeconds);
+        if (delta.magnitude < factor && minimumDistance == 0) transform.position = new Vector3(target.position.x, target.position.y, transform.position.z);
+        if (delta.magnitude < minimumDistance || delta.magnitude < factor) return;
         delta.Normalize();
         delta.Scale(new Vector2(factor, factor));
         currentPosition += delta;

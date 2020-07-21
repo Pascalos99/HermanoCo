@@ -7,16 +7,11 @@ public class OutOfRangeDetector : MonoBehaviour
 {
     public Camera mainView;
     public Transform target;
-    public float tolerance;
-    public int resolution = 1;
+    public float tolerance = 0;
 
-    private bool isTicked = false;
-
-    public bool inRange { get 
-        {
-            if (!isTicked) Update();
-            return inRange;
-        } private set { inRange = value; }}
+    private bool inRange = false;
+    private bool hasTicked = false;
+    private int resolution = 1;
 
     private void Start()
     {
@@ -26,13 +21,12 @@ public class OutOfRangeDetector : MonoBehaviour
 
     void Update()
     {
-        isTicked = true;
         if (inRange) Debug.Log("player in range");
         else Debug.Log("player out of range");
         Vector3 pos = mainView.WorldToViewportPoint(target.position);
         if (pos.x < 0 || pos.x > 1 || pos.y < 0 || pos.y > 1) inRange = false;
         else inRange = true;
-        if (!inRange || resolution == 0) return;
+        if (!inRange || resolution == 0) { hasTicked = true;  return; }
         int count = 2 << resolution;
         double minAngle = 2*math.PI_DBL / count;
         for (int i=0; i < count; i++)
@@ -46,5 +40,12 @@ public class OutOfRangeDetector : MonoBehaviour
                 break;
             }
         }
+        hasTicked = true;
+    }
+
+    public bool InRange()
+    {
+        if (!hasTicked) Update();
+        return inRange;
     }
 }

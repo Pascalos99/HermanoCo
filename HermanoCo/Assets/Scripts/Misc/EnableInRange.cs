@@ -5,9 +5,11 @@ using UnityEngine;
 public class EnableInRange : MonoBehaviour
 {
     public OutOfRangeDetector detector;
+    public GameObject ojectToEnable;
+    public bool enableInRange = true;
 
     void Update()
     {
-        //gameObject.SetActive(detector.inRange);
+        ojectToEnable.SetActive(detector.InRange() ^ !enableInRange);
     }
 }

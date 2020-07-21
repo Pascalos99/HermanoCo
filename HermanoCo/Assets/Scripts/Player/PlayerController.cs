@@ -9,12 +9,13 @@ public class PlayerController : MonoBehaviour
 {
     public double groundMovementSpeed = 500;
     public double airMovementSpeed = 300;
-    public double rotationSpeed = 200;
+    public double rotationSpeed = 60;
     public float jumpStrength = 400;
     public bool flightControl = false;
     public bool allowDoubleJump = false;
     public Transform groundCheck = null;
     public float groundCheckRadius = 0.75f;
+    public bool defaultFacingRight = true;
     public Animator animator;
 
     private Stopwatch watch;
@@ -81,10 +82,8 @@ public class PlayerController : MonoBehaviour
     
     private void PlayerRotationCheck()
     {
-        Quaternion q = transform.rotation;
-        if (rigid.velocity.x > 0.01) q.eulerAngles = new Vector3(q.eulerAngles.x, 0, q.eulerAngles.z);
-        if (rigid.velocity.x < -0.01) q.eulerAngles = new Vector3(q.eulerAngles.x, 180, q.eulerAngles.z);
-        transform.rotation = q;
+        if (defaultFacingRight && rigid.velocity.x > 0.01 || !defaultFacingRight && rigid.velocity.x < -0.01) GetComponent<SpriteRenderer>().flipX = false;
+        if (defaultFacingRight && rigid.velocity.x < -0.01 || !defaultFacingRight && rigid.velocity.x > 0.01) GetComponent<SpriteRenderer>().flipX = true;
     }
 
     private void onGround()

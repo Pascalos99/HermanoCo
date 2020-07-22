@@ -21,8 +21,6 @@ public class OutOfRangeDetector : MonoBehaviour
 
     void Update()
     {
-        if (inRange) Debug.Log("player in range");
-        else Debug.Log("player out of range");
         Vector3 pos = mainView.WorldToViewportPoint(target.position);
         if (pos.x < 0 || pos.x > 1 || pos.y < 0 || pos.y > 1) inRange = false;
         else inRange = true;
